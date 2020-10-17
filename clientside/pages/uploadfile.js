@@ -8,6 +8,8 @@ import CancelIcon from "@material-ui/icons/Cancel";
 
 import axios from 'axios'
 
+import { v4 as uuidv4 } from 'uuid';
+
 const baseStyle = {
   flex: 1,
   display: "flex",
@@ -69,18 +71,26 @@ const img = {
 
 let centerStyle= {display:'flex' , justifyContent:'center' , fontWeight:'bold'}
 
-export default props => {
+const UploadFileComp = props => {
 
   const [files, setFiles] = useState([]);
   let [storedfiles , setstoredfiles] = useState([])
 
   const onDrop = acceptedFiles => {
-    setFiles(
-      acceptedFiles.map(file =>
+    setFiles([
+      ...files.map(file =>
         Object.assign(file, {
+          id: uuidv4(),
+          preview: URL.createObjectURL(file)
+        })
+      ),
+      ...acceptedFiles.map(file =>
+        Object.assign(file, {
+          id: uuidv4(),
           preview: URL.createObjectURL(file)
         })
       )
+    ]
     )
   };
 
@@ -109,7 +119,7 @@ export default props => {
   );
 
   const thumbs = files.map((item, index) => (
-    <div style={thumb} key={item.name}>
+    <div style={thumb} key={item.id}>
       <div style={thumbInner}>
         <img src={item.preview} style={img} />
       </div>
@@ -133,7 +143,8 @@ export default props => {
   useEffect(
     () => () => {
       // Make sure to revoke the data uris to avoid memory leaks
-      files.forEach(file => URL.revokeObjectURL(file.preview));
+      // files.forEach(file => URL.revokeObjectURL(file));
+      console.log('files' , files)
     },
     [files]
   );
@@ -159,7 +170,6 @@ export default props => {
     })
         .then((res) => {
             console.log(res.data)
-            setisuploaded(true)
         })
     .catch(err => console.log(err))
 
@@ -226,3 +236,6 @@ let storeImages = e => {
   );
 };
 
+
+
+export default UploadFileComp
